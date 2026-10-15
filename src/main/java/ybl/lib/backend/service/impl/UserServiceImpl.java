@@ -1,5 +1,6 @@
 package ybl.lib.backend.service.impl;
 
+import io.jsonwebtoken.Claims;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import ybl.lib.backend.common.Result;
@@ -10,6 +11,7 @@ import ybl.lib.backend.pojo.User;
 import ybl.lib.backend.service.UserService;
 import ybl.lib.backend.util.JwtUtil;
 import ybl.lib.backend.util.MD5Utils;
+import ybl.lib.backend.util.ThreadLocalUtil;
 
 /**
  * {@link UserService} 的实现。
@@ -72,6 +74,22 @@ public class UserServiceImpl implements UserService {
 
         userMapper.insert(user);
         return Result.success();
+    }
+
+    @Override
+    public Result<User> me() {
+        // /users/me 已被登录拦截器保护，正常情况下这里必然有值。
+        // 保留这层判断是为了在拦截器放行规则被改动时返回 401，而不是抛 NullPointerException
+        Claims claims = ThreadLocalUtil.get();
+        if (claims == null) {
+            return Result.error(401, "未登录，请先登录");
+        }
+
+        User user = userMapper.findById(Long.valueOf(claims.getSubject()));
+        if (user == null) {
+            return Result.error(404, "用户不存在");
+        }
+        return Result.success(user);
     }
 
     private boolean isBlank(String s) {

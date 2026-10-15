@@ -3,6 +3,7 @@ package ybl.lib.backend.service;
 import ybl.lib.backend.common.Result;
 import ybl.lib.backend.pojo.LoginDTO;
 import ybl.lib.backend.pojo.RegisterDTO;
+import ybl.lib.backend.pojo.User;
 
 /**
  * 用户相关的业务接口。
@@ -30,4 +31,15 @@ public interface UserService {
      * @return 成功时 data 为 null；失败时 code 为 409（用户名或邮箱已被占用）
      */
     Result<Void> register(RegisterDTO dto);
+
+    /**
+     * 查询当前登录用户的信息。
+     *
+     * <p>用户 id 取自 {@link ybl.lib.backend.util.ThreadLocalUtil}，由登录拦截器在
+     * 校验 token 通过后写入，因此本方法不需要参数，也就不存在查别人信息的可能。
+     *
+     * @return 成功时 data 为当前用户对象（password 字段不参与 JSON 序列化）；
+     *         用户已被删除时 code 为 404
+     */
+    Result<User> me();
 }

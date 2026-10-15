@@ -26,6 +26,15 @@ public interface UserMapper {
     User findByName(@Param("name") String name);
 
     /**
+     * 按 id 查询用户，供查询当前用户信息使用。
+     *
+     * @param id 用户 id
+     * @return 对应用户，不存在时返回 null
+     */
+    @Select("SELECT id, name, password, email, role FROM `user` WHERE id = #{id}")
+    User findById(@Param("id") Long id);
+
+    /**
      * 统计该用户名已存在的记录数，供注册时查重。
      *
      * @param name 用户名

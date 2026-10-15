@@ -1,5 +1,6 @@
 package ybl.lib.backend.pojo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -24,7 +25,15 @@ public class User implements Serializable {
     /** 用户姓名 */
     private String name;
 
-    /** 密码哈希值 */
+    /**
+     * 密码哈希值。
+     *
+     * <p>WRITE_ONLY 表示该字段允许反序列化写入（前端注册时可以传进来），
+     * 但序列化成 JSON 时会被忽略，保证任何接口都不会把密码返回给前端。
+     *
+     * <p>注意 @ToString.Exclude 只管 toString()，与 JSON 序列化是两条独立的路径。
+     */
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @ToString.Exclude
     private String password;
 
