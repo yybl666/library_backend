@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: backend
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/library_system?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 123456
+
+mybatis:
+  # Mapper XML 文件位置，接口返回实体用全限定名，需写 XML 时把文件放进 resources/mapper
+  mapper-locations: classpath:mapper/*.xml
+  # 实体包名，XML 中可直接用类名代替全限定名
+  type-aliases-package: ybl.lib.backend.pojo
+  configuration:
+    # 开启下划线列名到驼峰属性名的自动映射，如 borrow_time -> borrowTime
+    map-underscore-to-camel-case: true
+
+jwt:
+  # 签名密钥。HS256 要求密钥至少 32 字节（256 位），短于这个长度 jjwt 会抛 WeakKeyException。
+  # 当前是开发用占位值，部署前务必替换成随机生成的密钥，且不要提交到公开仓库。
+  secret: library-system-dev-secret-key-change-me-in-production-0123456789
+  # token 有效期，单位分钟
+  expire-minutes: 120
