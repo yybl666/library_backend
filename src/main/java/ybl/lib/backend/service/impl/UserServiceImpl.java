@@ -7,6 +7,7 @@ import ybl.lib.backend.common.Result;
 import ybl.lib.backend.mapper.UserMapper;
 import ybl.lib.backend.pojo.LoginDTO;
 import ybl.lib.backend.pojo.RegisterDTO;
+import ybl.lib.backend.pojo.UpdatePasswordDTO;
 import ybl.lib.backend.pojo.User;
 import ybl.lib.backend.service.UserService;
 import ybl.lib.backend.util.JwtUtil;
@@ -90,6 +91,33 @@ public class UserServiceImpl implements UserService {
             return Result.error(404, "用户不存在");
         }
         return Result.success(user);
+    }
+
+    @Override
+    public Result<Void> changePassword(UpdatePasswordDTO dto) {
+        // 要改谁由 token 决定，不从请求体接收用户 id
+        Claims claims = ThreadLocalUtil.get();
+        Long userId = Long.valueOf(claims.getSubject());
+        User user = userMapper.findById(userId);
+        if (user == null) {
+            return Result.error(404, "用户不存在");
+        }
+        // 顺序很关键：先确认原密码正确，再判断新密码是否与原密码相同。
+        // 反过来的话，原密码本身就填错时却会提示「新密码不能与原密码相同」，
+        // 用户会去改新密码，实际问题是原密码错了，白白绕一圈。
+        String oldHash = MD5Utils.md5(dto.getOldPassword());
+        if (!user.getPassword().equals(oldHash)) {
+            return Result.error(400, "原密码不正确");
+        }
+
+        // MD5 是确定性的，所以比较哈希与比较明文等价
+        String newHash = MD5Utils.md5(dto.getNewPassword());
+        if (oldHash.equals(newHash)) {
+            return Result.error(400, "新密码不能与原密码相同");
+        }
+
+        userMapper.updatePassword(userId, newHash);
+        return Result.success();
     }
 
     private boolean isBlank(String s) {

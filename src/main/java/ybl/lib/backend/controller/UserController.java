@@ -3,6 +3,7 @@ package ybl.lib.backend.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import ybl.lib.backend.common.Result;
 import ybl.lib.backend.pojo.LoginDTO;
 import ybl.lib.backend.pojo.RegisterDTO;
+import ybl.lib.backend.pojo.UpdatePasswordDTO;
 import ybl.lib.backend.pojo.User;
 import ybl.lib.backend.service.UserService;
 
@@ -65,5 +67,20 @@ public class UserController {
     @GetMapping("/me")
     public Result<User> me() {
         return userService.me();
+    }
+
+    /**
+     * 修改当前登录用户密码。
+     *
+     * <p>PATCH /users/me/password
+     *
+     * <p>同样不需要在路径或请求体里指定用户，改的是 token 对应的那个账号。
+     *
+     * @param dto 请求体 {@code { "oldPassword": "...", "newPassword": "..." }}
+     * @return 成功时 data 为 null；原密码不正确或新密码不合规返回 400
+     */
+    @PatchMapping("/me/password")
+    public Result<Void> changePassword(@Valid @RequestBody UpdatePasswordDTO dto) {
+        return userService.changePassword(dto);
     }
 }

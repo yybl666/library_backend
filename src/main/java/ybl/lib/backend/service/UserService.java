@@ -3,6 +3,7 @@ package ybl.lib.backend.service;
 import ybl.lib.backend.common.Result;
 import ybl.lib.backend.pojo.LoginDTO;
 import ybl.lib.backend.pojo.RegisterDTO;
+import ybl.lib.backend.pojo.UpdatePasswordDTO;
 import ybl.lib.backend.pojo.User;
 
 /**
@@ -42,4 +43,18 @@ public interface UserService {
      *         用户已被删除时 code 为 404
      */
     Result<User> me();
+
+    /**
+     * 修改当前登录用户的密码。
+     *
+     * <p>要改的是谁由 token 决定，从 {@link ybl.lib.backend.util.ThreadLocalUtil} 取，
+     * 不从请求体接收用户 id，因此不存在改他人密码的可能。
+     *
+     * <p>会先校验原密码，再判断新密码是否与原密码相同。
+     *
+     * @param dto 修改密码请求，包含原密码和新密码明文
+     * @return 成功时 data 为 null；失败时 code 为 400（原密码错误或新密码不合规）、
+     *         401（未登录）、404（用户不存在）
+     */
+    Result<Void> changePassword(UpdatePasswordDTO dto);
 }

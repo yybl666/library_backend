@@ -5,6 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 import ybl.lib.backend.pojo.User;
 
 /**
@@ -64,4 +65,14 @@ public interface UserMapper {
             + "VALUES (#{name}, #{password}, #{email}, #{role})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     int insert(User user);
+
+    /**
+     * 修改指定用户的密码。
+     *
+     * @param id       用户 id
+     * @param password 新的密码哈希值，调用方需先做 MD5
+     * @return 影响行数，成功为 1
+     */
+    @Update("UPDATE `user` SET password = #{password} WHERE id = #{id}")
+    int updatePassword(@Param("id") Long id, @Param("password") String password);
 }
